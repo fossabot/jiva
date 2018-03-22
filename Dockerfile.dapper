@@ -1,7 +1,7 @@
 FROM ubuntu:16.04
 # FROM arm=armhf/ubuntu:16.04
 
-ARG DAPPER_HOST_ARCH=amd64
+ARG DAPPER_HOST_ARCH=arm64
 ENV HOST_ARCH=${DAPPER_HOST_ARCH} ARCH=${DAPPER_HOST_ARCH}
 
 # Setup environment
@@ -27,15 +27,15 @@ RUN rm -f /bin/sh && ln -s /bin/bash /bin/sh
 # Install Go & tools
 ENV GOLANG_ARCH_amd64=amd64 GOLANG_ARCH_arm=armv6l GOLANG_ARCH=GOLANG_ARCH_${ARCH} \
     GOPATH=/go PATH=/go/bin:/usr/local/go/bin:${PATH} SHELL=/bin/bash
-RUN wget -O - https://storage.googleapis.com/golang/go1.7.4.linux-${!GOLANG_ARCH}.tar.gz | tar -xzf - -C /usr/local && \
+RUN wget -O - https://storage.googleapis.com/golang/go1.10.linux-${ARCH}.tar.gz | tar -xzf - -C /usr/local && \
     go get github.com/rancher/trash && go get github.com/golang/lint/golint && go get github.com/prometheus/client_golang/prometheus/promhttp
 
 # Docker
-ENV DOCKER_URL_amd64=https://get.docker.com/builds/Linux/x86_64/docker-1.10.3 \
-    DOCKER_URL_arm=https://github.com/rancher/docker/releases/download/v1.10.3-ros1/docker-1.10.3_arm \
-    DOCKER_URL=DOCKER_URL_${ARCH}
-
-RUN wget -O /usr/bin/docker ${!DOCKER_URL} && chmod +x /usr/bin/docker
+#ENV DOCKER_URL_amd64=https://get.docker.com/builds/Linux/x86_64/docker-1.10.3 \
+#    DOCKER_URL_arm=https://github.com/rancher/docker/releases/download/v1.10.3-ros1/docker-1.10.3_arm \
+#    DOCKER_URL=DOCKER_URL_${ARCH}
+#
+#RUN wget -O /usr/bin/docker ${!DOCKER_URL} && chmod +x /usr/bin/docker
 
 # Build TCMU
 RUN cd /usr/src && \
@@ -59,7 +59,7 @@ RUN cd /usr/src/libqcow-20160123 && \
 
 # Build liblonghorn
 RUN cd /usr/src && \
-    git clone https://github.com/yasker/liblonghorn.git && \
+    git clone https://github.com/muratkars/liblonghorn.git && \
     cd liblonghorn && \
     git checkout 8ef0ed67bc882457ffe63ad0f1ae49cb59c01e57 && \
     make deb && \
@@ -67,7 +67,7 @@ RUN cd /usr/src && \
 
 # Build TGT
 RUN cd /usr/src && \
-    git clone https://github.com/yasker/tgt.git && \
+    git clone https://github.com/muratkars/tgt.git && \
     cd tgt && \
     git checkout 6475d1ddf4ff0ac1421a96725f3d472cbb2985c7 && \
     ./scripts/build-pkg.sh deb && \
